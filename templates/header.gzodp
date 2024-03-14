@@ -1,0 +1,60 @@
+<input hidden type=checkbox id=toggler class=toggler>
+<header class=header>
+<a href="/" class=logo><img height=45px src="/img/logo.png"></a>
+<label for=toggler class=toggler-label>
+hello
+</label>
+<?php
+/*if(isset($_SESSION["username"])){
+?>
+	<span><?=htmlspecialchars(get_values_from_name($con, $_SESSION["username"],"realname"))?></span>
+	<span><?=mysqli_error($con)?></span>
+<?php
+}*/
+?>
+<ul class=nav>
+<?php
+if(site('menus')!==false){
+	foreach(site('menus') as $menu){
+		$current_url = explode("?",$_SERVER["REQUEST_URI"])[0];
+		$current_url = $current_url==="/"?"/index":$current_url;
+		$is_active_page = strpos($current_url,$menu["url"]==="/"?"/index":$menu["url"])===0;
+		$authorized=false;
+		if(strpos($menu["name"],"secur:")===0){
+			if(isset($_SESSION["username"])){
+				$authorized = true;
+			}else{
+				$authorized = false;
+			}
+			$menu["name"] = substr($menu["name"], strlen("secur:"));
+		}
+		else if(strpos($menu["name"],"nosecuronly:")===0){
+			if(!isset($_SESSION["username"])){
+				$authorized = true;
+			}else{
+				$authorized = false;
+			}
+			$menu["name"] = substr($menu["name"], strlen("nosecuronly:"));
+		}
+		else if(strpos($menu["name"],"adminonly:")===0){
+			if(isset($_SESSION["username"])and is_user_admin($con,$_SESSION["username"])){
+				$authorized = true;
+			}else{
+				$authorized = false;
+			}
+			$menu["name"] = substr($menu["name"], strlen("adminonly:"));
+		}
+		else{
+			$authorized=true;
+		}
+		if($authorized){
+
+?>
+<li class="nav-item<?=$is_active_page?" active":""?>"><a href="<?=$menu["url"]?>"><?=$menu["name"]?></a></li>
+<?php
+		}
+	}
+}
+?>
+</ul>
+</header>

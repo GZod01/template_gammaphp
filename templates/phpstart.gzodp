@@ -1,0 +1,11 @@
+<?php
+include "{{{SITEPATH}}}/config.gzodp";
+require "{{{SITEPATH}}}/public/db.gzodp";
+date_default_timezone_set('Europe/Paris');
+#{{{session}}}
+#{{{notsecursession}}}
+ob_start();
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+?>

@@ -1,0 +1,14 @@
+{{{phpstart}}}
+<!DOCTYPE HTML>
+<html lang=fr>
+<head>
+{{{head}}}
+</head>
+<body>
+{{{header}}}
+<main class=content>
+{{{content}}}
+</main>
+{{{footer}}}
+</body>
+{{{phpend}}}

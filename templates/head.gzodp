@@ -1,0 +1,18 @@
+<meta name=viewport content="width=device-width,initial-scale=1.0">
+<meta charset="UTF-8">
+<link rel=stylesheet href="/style.css">
+<link rel="icon" href="<?=htmlspecialchars(site('favicon')!==FALSE?site('favicon'):"/favicon.ico");?>">
+<title>{{{title}}}</title>
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="theme-color" content="#ffffff">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<meta property="og:title" value="">
+<meta property="og:site_name" value="">
+<meta property="og:description" value="">
+<meta property="og:type" value="website">
+<meta property="og:image" value="/img/logo.png">

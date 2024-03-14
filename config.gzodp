@@ -1,0 +1,20 @@
+<?php
+$sitebasedir = "{{{{SITEPATH}}}}";
+$site = [
+	"baseurl"=>"https://example.com",
+	"basedir"=>$sitebasedir,
+	"title"=>"TITLE",
+	"contentpath"=>$sitebasedir."/content/",
+	"publishpath"=>$sitebasedir."/public/",
+	"templatepath"=>$sitebasedir."/templates/",
+];
+$jsonoverrideconf = file_exists($sitebasedir."/config.json")?(json_decode(file_get_contents($sitebasedir."/config.json"),true)):[];
+foreach($jsonoverrideconf as $f=>$e){
+	$site[$f]=$e;
+}
+if(!function_exists("site")){
+function site($offset){
+	global $site;
+	return isset($site[$offset])?$site[$offset]:false;
+}
+}

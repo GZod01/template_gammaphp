@@ -1,0 +1,121 @@
+<?php
+include "/home/aurel/vendor/autoload.php";
+include __DIR__."/config.gzodp";
+function deleteDir($dir){
+	$it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
+	$files = new RecursiveIteratorIterator($it,
+		     RecursiveIteratorIterator::CHILD_FIRST);
+	foreach($files as $file) {
+	    if ($file->isDir()){
+		rmdir($file->getRealPath());
+	    } else {
+		unlink($file->getRealPath());
+	    }
+	}
+	rmdir($dir);
+}
+function getYaml($filecontent){
+	$parser = new Mni\FrontYAML\Parser();
+
+	$document = $parser->parse($filecontent);
+
+	$yaml = $document->getYAML();
+	// Trouver la fin du Front Matter YAML
+	$endOfFrontMatter = (strlen($filecontent) > 4 and strpos($filecontent, "---",4)!==FALSE)?(strpos($filecontent, '---', 4) + 3):0;
+
+	// Retirer le Front Matter YAML du contenu Markdown
+	$WithoutFrontMatter = substr($filecontent, $endOfFrontMatter);
+
+	// Supprimer les espaces vides et retours à la ligne supplémentaires au début du contenu
+	$WithoutFrontMatter = ltrim($WithoutFrontMatter);
+	return [$yaml,$WithoutFrontMatter];
+}
+function getFiles($dir){
+	 return glob(str_replace(['[',']',"\f[","\f]"], ["\f[","\f]",'[[]','[]]'], ($dir)) . '*');
+}
+
+$reallybasepath = site("contentpath");
+$publishpath = site("publishpath");
+function stripPathStart($path){
+	global $reallybasepath;
+	if(strpos($path,$reallybasepath)===0){
+		return substr($path,strlen($reallybasepath));
+	}
+}
+
+function createPage($path){
+	global $publishpath;
+	$endpath = stripPathStart($path);
+	$filecontent = file_get_contents($path);
+	$getyaml = getYaml($filecontent);
+	$yaml = $getyaml[0];
+	$content = $getyaml[1];
+	if(isset($yaml["static"]) and $yaml["static"]===true){
+		file_put_contents($publishpath.$endpath,$content);
+		return false;
+	}
+	$title = isset($yaml["title"])?$yaml["title"]:site("title");
+	$secur = isset($yaml["secur"])?$yaml["secur"]:false;
+	$templatepath = site("templatepath");
+	$head = file_get_contents($templatepath."head.gzodp");
+	$formattedhead = str_replace("{{{title}}}",$title,$head);
+	$header = file_get_contents($templatepath."header.gzodp");
+	$footer = file_get_contents($templatepath."footer.gzodp");
+	$pagetemplate = file_get_contents($templatepath."page.gzodp");
+	$sitedir = site('basedir');
+	$includesession=isset($yaml["custom_include_session"])?$yaml["custom_include_session"]:"include '$sitedir/public/auth_session.gzodp';";
+	$session = $secur===true?$includesession:"";
+	$nssession = ($secur===false)?"session_start();":"";
+	$nssession = (isset($yaml["phpstatic"]) and $yaml["phpstatic"]==true)?"":$nssession;
+	$phpstart = str_replace(["#{{{session}}}","#{{{notsecursession}}}"],[$session,$nssession],file_get_contents($templatepath."phpstart.gzodp"));
+	$phpend =file_get_contents($templatepath."phpend.gzodp");
+	$pageformatted = str_replace(["{{{head}}}","{{{header}}}","{{{footer}}}","{{{content}}}","{{{phpstart}}}","{{{phpend}}}"],[$formattedhead,$header,$footer,$content,$phpstart,$phpend],$pagetemplate);
+	file_put_contents($publishpath.$endpath,$pageformatted);
+	if(isset($yaml["dobble"])){
+		file_put_contents($publishpath.$yaml["dobble"],$content);
+	}
+	return true;
+}
+function createFile($path){
+	global $publishpath;
+	$endpath = stripPathStart($path);
+	$pageformatted = file_get_contents($path);
+	file_put_contents($publishpath.$endpath,$pageformatted);
+}
+
+function createFiles($basepath,$staticmode=false){
+	global $publishpath;
+	$files = getFiles($basepath);
+	$sitemapstart = '<?xml version="1.0" encoding="UTF-8"?>
+		<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+	$sitemapend = '</urlset>';
+	$sitemap = "";
+	foreach($files as $f){
+		echo $f."\n";
+		echo is_dir($f)?"true":"false";
+		echo "\n";
+		if(is_dir($f."/")){
+			mkdir($publishpath.stripPathStart($f));
+			createFiles($f."/");
+		}
+		else{
+			$sitemap.="<url><loc>".htmlspecialchars(site('baseurl')).htmlspecialchars(stripPathStart($f))."</loc></url>";
+			$pathinfo = pathinfo($f);
+			$ext = $pathinfo["extension"];
+			if($ext === "gzodp" and !$staticmode){
+				createPage($f);
+			}
+			else{
+				createFile($f);
+			}
+		}
+	}
+	$finalsitemap = $sitemapstart.$sitemap.$sitemapend;
+	file_put_contents($publishpath."sitemap.xml",$finalsitemap);	
+}
+
+
+
+deleteDir($publishpath);
+mkdir($publishpath);
+createFiles($reallybasepath);

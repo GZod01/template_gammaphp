@@ -1,0 +1,33 @@
+{
+	"title":"Aumônerie de Gaillon",
+	"menus":[
+		{
+			"name":"Accueil",
+			"url":"/"
+		},
+		{
+			"name":"Contact",
+			"url":"/contact"
+		},
+		{
+			"name":"nosecuronly:Accès Membre",
+			"url":"/login"
+		},
+		{
+			"name":"secur:Tableau de Bord",
+			"url":"/dashboard"
+		},
+		{
+			"name":"secur:Agenda",
+			"url":"/events"
+		},
+		{
+			"name":"adminonly:Tableau de bord Administrateur",
+			"url":"/admin/"
+		},
+		{
+			"name":"secur:Se Deconnecter",
+			"url":"/logout"
+		}
+	]
+}
